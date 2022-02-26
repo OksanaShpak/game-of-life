@@ -1,0 +1,37 @@
+body{
+  margin: 0;
+}
+
+.container {
+  background-color: aquamarine;
+  width: 100vw;
+  height: 100vh;
+}
+.title {
+  font-size: 32px;
+}
+.gameboard {
+  width: 400px;
+  height: 400px;
+  margin: 45px auto 0;
+  background-color: white;
+  display: flex;
+  flex-wrap: wrap;
+  border-top: 1px solid white;
+  border-left: 1px solid white;
+}
+
+.gameboard-cell{
+  box-sizing: border-box;
+  width: 10px;
+  height: 10px;
+  background-color: blue;
+  border-right: 1px solid white;
+  border-bottom: 1px solid white;
+  transition: all .3s ease;
+}
+
+.gameboard-cell.is-alive{
+  background-color: yellow;
+}
+
