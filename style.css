@@ -11,20 +11,23 @@ body{
   font-size: 32px;
 }
 .gameboard {
-  width: 400px;
-  height: 400px;
+  width: var(--board-width);
+  height: var(--board-height);
   margin: 45px auto 0;
   background-color: white;
   display: flex;
   flex-wrap: wrap;
   border-top: 1px solid white;
   border-left: 1px solid white;
+  --cell-size: 10px;
+  --board-width: 400px;
+  --board-height: 400px;
 }
 
 .gameboard-cell{
   box-sizing: border-box;
-  width: 10px;
-  height: 10px;
+  width: var(--cell-size);
+  height: var(--cell-size);
   background-color: blue;
   border-right: 1px solid white;
   border-bottom: 1px solid white;

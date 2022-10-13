@@ -1,115 +1,91 @@
 const gameboard = document.querySelector('[data-gameboard]');
 const cell = gameboard.querySelector('[data-gameboard-cell]');
+const form = document.getElementById('form');
 const playButton = document.querySelector('[data-button-play]');
-const gameboardSize = gameboard.getBoundingClientRect();
-const cellSize = cell.getBoundingClientRect();
-const cellsInRow = (gameboardSize.width - 1) / cellSize.width;
+const buildButton = document.querySelector('[data-button-build]')
 
-const shifts = [-41, -40, -39, -1, 1, 39, 40, 41]
+let columnCount, rowHeight, cellSize;
+let shifts;
+let gameState;
+let timer;
 
+prepare();
 
-let timer
-// Структура данных
-const gameState = buildGameboard();
+playButton.addEventListener('click', () => {
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  } else {
+    timer = setInterval(tick, 400);
+  }
+})
 
-// Дефолтный стейт
-gameState[100] = 1;
+buildButton.addEventListener('click', () => {
+  if (doesRequireRestart()) {
+    prepare();
+  }
+})
 
-// Правила игры
+gameboard.addEventListener('click', (event) => {
 
-// ячеек в лдном ряду
-// console.log(cellsInRow)
+  const i = [...gameboard.children].indexOf(event.target);
+  gameState[i] = 1 - gameState[i];
 
-// gameState[i]==0 уже была пустой
+  render();
+})
 
-function tick()
-{
+function tick() {
   const nextState = [];
-  for (let i = 0; i < gameState.length; i++)
-  {
+
+  for (let i = 0; i < gameState.length; i++) {
     const count = shifts.map(shift => gameState[i + shift])
       .filter(Boolean)
       .reduce((sum, num) => sum + num, 0)
+
     nextState[i] = Number(count == 3 || count == 2 && gameState[i])
-    // if (count < 2 || count > 3 || count == 2 && gameState[i] == 0)
-    // {
-    //   nextState[i] = 0;
-    // } else
-    // {
-    //   nextState[i] = 1;
-    // }
   }
 
   gameState.splice(0, gameState.length, ...nextState);
   render();
 }
 
+function render() {
+  gameboard.style.setProperty('--cell-size', cellSize + 'px');
+  gameboard.style.setProperty('--board-width', cellSize * columnCount + 'px');
+  gameboard.style.setProperty('--board-height', cellSize * rowHeight + 'px');
 
-// Добавляем слущатель на кнопку
-
-playButton.addEventListener('click', () =>
-{
-  if (timer)
-  {
-    clearInterval(timer);
-    timer = null;
-  } else
-  {
-    timer = setInterval(tick, 400);
-  }
-})
-
-
-
-
-//  Событие по клику пользователя
-gameboard.addEventListener('click', (event) =>
-{
-
-  const i = [...gameboard.children].indexOf(event.target);
-  gameState[i] = 1 - gameState[i]
-  // if (gameState[i] == 0)
-  // {
-  //   gameState[i] = 1;
-  // } else
-  // {
-  //   gameState[i] = 0;
-
-  // }
-
-  render();
-})
-
-render();
-
-function render()
-{
-  gameState.forEach((item, index) =>
-  {
+  gameState.forEach((item, index) => {
     gameboard.children[index].classList.toggle('is-alive', item == 1);
-    // if (item == 1)
-    // {
-    //   gameboard.children[index].classList.add('is-alive');
-    // } else
-    // {
-    //   gameboard.children[index].classList.remove('is-alive');
-    // }
   })
 }
 
-function buildGameboard()
-{
-  const gameboardArea = (gameboardSize.height - 1) * (gameboardSize.width - 1);
+function buildGameboard() {
+  const cellCount = form.width.value * form.height.value;
+  const cells = [cell];
 
-  const cellArea = cellSize.height * cellSize.width;
-
-  const cellCount = gameboardArea / cellArea;
-  for (let i = 1; i < cellCount; i++)
-  {
-    const cellClone = cell.cloneNode();
-    gameboard.appendChild(cellClone);
+  for (let i = 1; i < cellCount; i++) {
+    cells.push(cell.cloneNode());
   }
+
+  gameboard.replaceChildren(...cells);
+
   return Array(cellCount).fill(0);
 }
 
+function prepare() {
+  cellSize = +form.cellSize.value;
+  columnCount = +form.width.value;
+  rowHeight = +form.height.value;
+  shifts = [-columnCount - 1, -columnCount, -columnCount + 1, -1, 1, columnCount - 1, columnCount, columnCount + 1];
 
+  gameState = buildGameboard();
+  render();
+}
+
+function doesRequireRestart() {
+  return !(
+    cellSize == form.cellSize.value &&
+    columnCount == form.width.value &&
+    rowHeight == form.height.value
+  );
+}
